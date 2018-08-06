@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ListView
+            android:id="@+id/list_stations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:layout_marginBottom="@dimen/list_margin_bottom"
+            android:scrollbars="vertical"
+            android:textSize="@dimen/list_font_size" />
+
+        <EditText
+            android:id="@+id/filter_station"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:gravity="bottom"
+            android:hint="@string/select_station"
+            android:inputType="textAutoComplete"
+
+            android:textSize="@dimen/edit_text_size">
+
+        </EditText>
+
+    </RelativeLayout>
+
+
+</android.support.constraint.ConstraintLayout>
