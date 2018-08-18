@@ -1,6 +1,6 @@
 package ro.stefanhalus.android.blindtransport;
 
-import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -15,14 +15,25 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import ro.stefanhalus.android.blindtransport.DatabaseModel.DBHelper;
+import ro.stefanhalus.android.blindtransport.DatabaseModel.LinesModel;
+import ro.stefanhalus.android.blindtransport.DatabaseModel.StationsModel;
+import ro.stefanhalus.android.blindtransport.DatabaseModel.StopsModel;
 
 public class MainActivity extends AppCompatActivity {
 
+    // TODO Auto-generated method stub
     private DBHelper btDb = new DBHelper(this);
+    protected Context context = this;
     private ListView stationsList;
     private EditText filter_stations_edit;
 
@@ -31,10 +42,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        try {
+            copyDataBase();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 //        insertStations();
 
         stationsList = findViewById(R.id.list_stations);
-        fillStationsList();
+//        fillStationsList();
+        fillStationsListObj();
 
         filter_stations_edit = findViewById(R.id.filter_station);
         filterStationsEventKeyPress();
@@ -62,108 +79,65 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressLint("WrongViewCast")
     private void fillStationsList() {
         ArrayList<String> array_list = btDb.getAllStations();
-        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, array_list);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, array_list);
         stationsList.setAdapter(arrayAdapter);
+        stationsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent i = new Intent(view.getContext(), BusesActivity.class);
+                i.putExtra("stationId", String.valueOf(id));
+                startActivityForResult(i, 0);
+            }
+        });
     }
+
+    private void fillStationsListObj() {
+        ArrayList<StationsModel> items = btDb.getAllStationsAsArrays();
+        ArrayAdapter<StationsModel> adapter = new ArrayAdapter<>(this, R.layout.util_list_item_simple, items);
+//        MySimpleArrayAdapter adapter = new MySimpleArrayAdapter(this, items);
+
+
+        stationsList.setAdapter(adapter);
+        stationsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent i = new Intent(view.getContext(), BusesActivity.class);
+                i.putExtra("stationId", String.valueOf(id));
+                i.putExtra("stationName", ((TextView) view).getText().toString());
+                startActivityForResult(i, 0);
+            }
+        });
+    }
+
+    private void fillStationsListObj(String search) {
+        ArrayList<StationsModel> items = btDb.getAllStationsAsArrays(search);
+        ArrayAdapter<StationsModel> adapter = new ArrayAdapter<>(this, R.layout.util_list_item_simple, items);
+
+        stationsList.setAdapter(adapter);
+        stationsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent i = new Intent(view.getContext(), BusesActivity.class);
+                i.putExtra("stationId", position);
+                i.putExtra("stationName", ((TextView) view).getText().toString());
+                startActivityForResult(i, 0);
+            }
+        });
+    }
+
 
     private void fillStationsList(String search) {
         ArrayList<String> array_list = btDb.getAllStationsSearch(search);
-        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, array_list);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, array_list);
         stationsList.setAdapter(arrayAdapter);
-//        stationsList.setOnItemClickListener(new AdapterView.onItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapter, View view, int position, long arg) {
-//                Intent appInfo = new Intent(YourActivity.this, ApkInfoActivity.class);
-//                startActivity(appInfo);
-//            }
+        stationsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent i = new Intent(view.getContext(), BusesActivity.class);
+                i.putExtra("stationId", String.valueOf(id));
+                startActivityForResult(i, 0);
+            }
+        });
     }
 
-    public void insertStations() {
-        ArrayList<String> l = new ArrayList();
-        l.add("Agronomia");
-        l.add("Andrei Muresanu");
-        l.add("Anton Pann");
-        l.add("Barbu Patriciu");
-        l.add("Becas Est");
-        l.add("Becas Vest");
-        l.add("Bistritei");
-        l.add("Borsec Nord");
-        l.add("Borsec Sud");
-        l.add("Calea Manastur");
-        l.add("Centrul Medical");
-        l.add("Closca");
-        l.add("Compexit");
-        l.add("Compl. Tempus Nord");
-        l.add("Compl. Tempus Sud");
-        l.add("Dacia Service");
-        l.add("Dacia Service Sos");
-        l.add("Disp. Clabucet");
-        l.add("Disp. Unirii");
-        l.add("Disp. Zorilor");
-        l.add("Drapelului Est");
-        l.add("Drapelului Vest");
-        l.add("Drum Faget");
-        l.add("Fabrica de Bere");
-        l.add("Fagului");
-        l.add("Garbau");
-        l.add("Ghe. Dima");
-        l.add("Gheorghe Doja");
-        l.add("Gradini Manastur");
-        l.add("Herculane");
-        l.add("I.P. Voitesti Nord");
-        l.add("I.P. Voitesti Sud");
-        l.add("Ion Mester ");
-        l.add("Izlazului");
-        l.add("Memorandumului Nord");
-        l.add("Memorandumului Sud");
-        l.add("Minerva");
-        l.add("N. Titulescu");
-        l.add("Observatorului Nord");
-        l.add("Observatorului Sud");
-        l.add("Opera");
-        l.add("Opera");
-        l.add("P-ta 1 Mai");
-        l.add("P-ta 1 Mai Sos");
-        l.add("P-ta Avram Iancu");
-        l.add("P-ta Cipariu Est");
-        l.add("P-ta Cipariu Nord");
-        l.add("P-ta Cipariu Sud");
-        l.add("P-ta Garii Sos");
-        l.add("P-ta Garii Sud");
-        l.add("P-ta I Agarbiceanu Est");
-        l.add("P-ta I Agarbiceanu Vest");
-        l.add("P-ta M. Viteazul Vest");
-        l.add("Paris");
-        l.add("Peana");
-        l.add("Ploiesti");
-        l.add("PMV 2 Sos");
-        l.add("Pod Traian");
-        l.add("Primaverii");
-        l.add("Regionala CFR");
-        l.add("Septimiu Albini Nord");
-        l.add("Septimiu Albini Sud");
-        l.add("Silviu Dragomir");
-        l.add("Snagov Nord");
-        l.add("Snagov Sud");
-        l.add("Sora");
-        l.add("Spitalul de Copii");
-        l.add("Spitalul Recuperare Nord");
-        l.add("Spitalul Recuperare Sud");
-        l.add("Teatru");
-        l.add("Traian");
-        l.add("Trifoiului Nord");
-        l.add("Trifoiului Sud");
-        l.add("Victoria");
-        l.add("Vitacom");
-        l.add("Vitacom Nord");
-        l.add("Zorilor");
-        for (String item : l) {
-            btDb.insertStation(item);
-        }
-    }
 
     private void filterStationsEventKeyPress() {
         // Filter stations list as you tipe string longer than 3 characters
@@ -171,9 +145,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 2) {
-                    fillStationsList(s.toString());
+                    fillStationsListObj(s.toString());
                 } else {
-                    fillStationsList();
+                    fillStationsListObj();
                 }
             }
 
@@ -196,14 +170,37 @@ public class MainActivity extends AppCompatActivity {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 String search_station = filter_stations_edit.getText().toString();
                 if (search_station.length() > 2) {
-                    fillStationsList(search_station);
+                    fillStationsListObj(search_station);
                     return true;
                 } else {
-                    fillStationsList();
+                    fillStationsListObj();
                     return true;
                 }
             }
         });
+    }
+
+    public void copyDataBase() throws IOException {
+        String package_name = context.getPackageName();
+        String DB_PATH = "/data/data/" + package_name + "/databases/";
+        String DB_NAME = "blind_transport";
+        try {
+            InputStream myInput = context.getAssets().open(DB_NAME);
+            File dbFile = new File(DB_PATH);
+            dbFile.mkdirs();
+            String outputFileName = DB_PATH + DB_NAME;
+            OutputStream myOutput = new FileOutputStream(outputFileName);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = myInput.read(buffer)) > 0) {
+                myOutput.write(buffer, 0, length);
+            }
+            myOutput.flush();
+            myOutput.close();
+            myInput.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

@@ -15,13 +15,17 @@
     <string name="dialog_about_owner_phone"><b>+40722634027</b></string>
     <string name="dialog_about_owner_email"><b>gabi.nagy@babilontravel.net</b></string>
     <string name="dialog_about_owner_www"><b>www.babilontravel.net</b></string>
-    <string name="dialog_about_owner_address"><b>Piața Cipariu, nr. 15, <br/>bl. IIIA, sc. 2, ap. 64, <br/>400191, Cluj-Napoca, <br/>Cluj, Romania</b></string>
+    <string name="dialog_about_owner_address"><b>Piața Cipariu, nr. 15, <br />bl. IIIA, sc. 2, ap. 64, <br />400191, Cluj-Napoca, <br />Cluj, Romania</b></string>
     <string name="select_station">Căutați stația</string>
     <string name="menu_about_application">Despre aplicație</string>
+
+    <string name="list_icon_description">Icon autobuz</string>
 
     <string name="ubil_button_ok">Bine</string>
     <string name="ubil_button_cancel">Renunță</string>
     <string name="ubil_button_yes">Da</string>
     <string name="ubil_button_no">Nu</string>
     <string name="ubil_button_close">Închide</string>
+    <string name="activity_buses_message">În stația <b>%1$s</b> opresc liniile:</string>
+    <string name="activity_buses_waiting_button">Așteapt</string>
 </resources>

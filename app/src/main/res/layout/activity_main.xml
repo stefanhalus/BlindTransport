@@ -17,7 +17,10 @@
             android:layout_gravity="top"
             android:layout_marginBottom="@dimen/list_margin_bottom"
             android:scrollbars="vertical"
-            android:textSize="@dimen/list_font_size" />
+            android:textSize="@dimen/list_font_size">
+
+
+        </ListView>
 
         <EditText
             android:id="@+id/filter_station"
