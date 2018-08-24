@@ -8,7 +8,8 @@
         android:id="@+id/tvStationId"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/list_font_size" android:text="@string/activity_buses_message" />
+        android:text="@string/activity_buses_message"
+        android:textSize="@dimen/list_font_size" />
 
     <ListView
         android:id="@+id/lvBusesStops"
@@ -18,7 +19,8 @@
     <Button
         android:id="@+id/btnWait"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" android:textAlignment="center"
+        android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="@string/activity_buses_waiting_button"
         android:textSize="@dimen/edit_text_size" />
 

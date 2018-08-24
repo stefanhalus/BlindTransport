@@ -2,6 +2,9 @@ package ro.stefanhalus.android.blindtransport.DatabaseModel;
 
 import java.util.ArrayList;
 
+import ro.stefanhalus.android.blindtransport.Models.LinesModel;
+import ro.stefanhalus.android.blindtransport.Models.StopsModel;
+
 public class bakDate {
     public void insertStations() {
         ArrayList<String> l = new ArrayList<>();

@@ -1,6 +1,4 @@
-package ro.stefanhalus.android.blindtransport.DatabaseModel;
-
-import android.widget.SimpleCursorTreeAdapter;
+package ro.stefanhalus.android.blindtransport.Models;
 
 public class LinesModel {
     public static final String TABLE_NAME = "lines";

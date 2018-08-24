@@ -19,13 +19,21 @@
     <string name="select_station">Căutați stația</string>
     <string name="menu_about_application">Despre aplicație</string>
 
-    <string name="list_icon_description">Icon autobuz</string>
+    <string name="list_icon_description">Icon stație</string>
 
     <string name="ubil_button_ok">Bine</string>
     <string name="ubil_button_cancel">Renunță</string>
     <string name="ubil_button_yes">Da</string>
     <string name="ubil_button_no">Nu</string>
     <string name="ubil_button_close">Închide</string>
-    <string name="activity_buses_message">În stația <b>%1$s</b> opresc liniile:</string>
-    <string name="activity_buses_waiting_button">Așteapt</string>
+    <string name="activity_buses_message">Stația %1$s:</string>
+    <string name="activity_buses_waiting_button">Aștept</string>
+    <string name="activity_waiting_button_notify">Notificare demo</string>
+
+    <string name="notification_title">A sosit linia%1$s</string>
+    <string name="notification_action_waiting">Pagina așteptare</string>
+    <string name="notification_channel_name">BT notification Channel</string>
+    <string name="notification_channel_description">BT notification description goes here</string>
+    <string name="notification_channel_app_name">BT notification Channel APP</string>
+    <string name="notification_channel_app_description">BT APP notification description goes here</string>
 </resources>

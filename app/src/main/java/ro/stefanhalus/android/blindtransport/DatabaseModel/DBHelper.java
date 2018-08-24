@@ -8,16 +8,19 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import java.util.ArrayList;
 
+import ro.stefanhalus.android.blindtransport.Models.LinesModel;
+import ro.stefanhalus.android.blindtransport.Models.StationsModel;
+import ro.stefanhalus.android.blindtransport.Models.StopsModel;
+
 public class DBHelper extends SQLiteOpenHelper {
     // Database Version
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 1;
 
     // Database Name
-    private static final String DATABASE_NAME = "blind_transport";
+    private static final String DATABASE_NAME = "blind_transport.db";
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -138,18 +141,18 @@ public class DBHelper extends SQLiteOpenHelper {
     public ArrayList<LinesModel> getStopsByStationId(int stationId) {
         ArrayList<LinesModel> array_list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String sql = "SELECT stops.line_id, lines.id AS id, lines.name AS name, lines.start AS start, lines.end AS end FROM stops " +
-                "INNER JOIN lines ON stops.line_id=lines.id " +
-                "WHERE stops.station_id = ? " +
-                "ORDER BY stops.line_id ASC; ";
-        Cursor res = db.rawQuery(sql, new String[]{ String.valueOf(stationId) });
+        String sql = "SELECT `stops`.`line_id`, `lines`.`id` AS `id`, `lines`.`name` AS `name`, `lines`.`start` AS `start`, `lines`.`end` AS `end` FROM `stops` " +
+                "INNER JOIN `lines` ON `stops`.`line_id` = `lines`.`id` " +
+                "WHERE `stops`.`station_id` = ? " +
+                "ORDER BY `lines`.`name` ASC; ";
+        @SuppressLint("Recycle") Cursor res = db.rawQuery(sql, new String[]{ String.valueOf(stationId) });
         res.moveToFirst();
         while (!res.isAfterLast()) {
             LinesModel line = new LinesModel();
-            line.setId(Integer.parseInt(res.getString(res.getColumnIndex("lines.id"))));
-            line.setName(res.getString(res.getColumnIndex("lines.name")));
-            line.setStart(Integer.parseInt(res.getString(res.getColumnIndex("lines.start"))));
-            line.setEnd(Integer.parseInt(res.getString(res.getColumnIndex("lines.end"))));
+            line.setId(Integer.parseInt(res.getString(res.getColumnIndex("id"))));
+            line.setName(res.getString(res.getColumnIndex("name")));
+            line.setStart(Integer.parseInt(res.getString(res.getColumnIndex("start"))));
+            line.setEnd(Integer.parseInt(res.getString(res.getColumnIndex("end"))));
             array_list.add(line);
             res.moveToNext();
         }

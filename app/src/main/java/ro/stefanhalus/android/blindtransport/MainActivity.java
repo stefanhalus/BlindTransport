@@ -12,10 +12,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,13 +23,22 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 import ro.stefanhalus.android.blindtransport.DatabaseModel.DBHelper;
-import ro.stefanhalus.android.blindtransport.DatabaseModel.LinesModel;
-import ro.stefanhalus.android.blindtransport.DatabaseModel.StationsModel;
-import ro.stefanhalus.android.blindtransport.DatabaseModel.StopsModel;
+import ro.stefanhalus.android.blindtransport.DatabaseModel.StationsArrayAdapter;
+import ro.stefanhalus.android.blindtransport.Models.StationsModel;
 
+/** Main Activity loaded as LAUNCER
+ * @author Ștefan Halus
+ * It provides the entry point of the application.
+ * Uses methods to implement database provided in assets package.
+ * A method lists all available stations.
+ * An edit text runs an overload of stations fill method after third character entered.
+ * Filtering is made with a wildcard search %...% upon the `name` column
+ * */
 public class MainActivity extends AppCompatActivity {
 
-    // TODO Auto-generated method stub
+    /** Properties definition
+     * Properties used along the class ar declared here.
+     * */
     private DBHelper btDb = new DBHelper(this);
     protected Context context = this;
     private ListView stationsList;
@@ -42,17 +49,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        try {
-            copyDataBase();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-//        insertStations();
+        // populate data from assets package
+        copyDataBase();
 
+        // Identifying the list holder
         stationsList = findViewById(R.id.list_stations);
-//        fillStationsList();
-        fillStationsListObj();
 
+//        fillStationsList();
+        fillStationsList();
+
+        // Identifying the filter imput and runing events
         filter_stations_edit = findViewById(R.id.filter_station);
         filterStationsEventKeyPress();
         filterStationsEventEnterKey();
@@ -80,64 +86,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fillStationsList() {
-        ArrayList<String> array_list = btDb.getAllStations();
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, array_list);
-        stationsList.setAdapter(arrayAdapter);
-        stationsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent i = new Intent(view.getContext(), BusesActivity.class);
-                i.putExtra("stationId", String.valueOf(id));
-                startActivityForResult(i, 0);
-            }
-        });
-    }
-
-    private void fillStationsListObj() {
-        ArrayList<StationsModel> items = btDb.getAllStationsAsArrays();
-        ArrayAdapter<StationsModel> adapter = new ArrayAdapter<>(this, R.layout.util_list_item_simple, items);
-//        MySimpleArrayAdapter adapter = new MySimpleArrayAdapter(this, items);
-
-
+        final ArrayList<StationsModel> items = btDb.getAllStationsAsArrays();
+        StationsArrayAdapter adapter = new StationsArrayAdapter(this, items);
         stationsList.setAdapter(adapter);
         stationsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                StationsModel currentStation = items.get(position);
                 Intent i = new Intent(view.getContext(), BusesActivity.class);
-                i.putExtra("stationId", String.valueOf(id));
-                i.putExtra("stationName", ((TextView) view).getText().toString());
+                i.putExtra("stationId", currentStation.getId());
+                i.putExtra("stationName", currentStation.getName());
                 startActivityForResult(i, 0);
             }
         });
     }
-
-    private void fillStationsListObj(String search) {
-        ArrayList<StationsModel> items = btDb.getAllStationsAsArrays(search);
-        ArrayAdapter<StationsModel> adapter = new ArrayAdapter<>(this, R.layout.util_list_item_simple, items);
-
-        stationsList.setAdapter(adapter);
-        stationsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent i = new Intent(view.getContext(), BusesActivity.class);
-                i.putExtra("stationId", position);
-                i.putExtra("stationName", ((TextView) view).getText().toString());
-                startActivityForResult(i, 0);
-            }
-        });
-    }
-
 
     private void fillStationsList(String search) {
-        ArrayList<String> array_list = btDb.getAllStationsSearch(search);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, array_list);
-        stationsList.setAdapter(arrayAdapter);
+        final ArrayList<StationsModel> items = btDb.getAllStationsAsArrays(search);
+        StationsArrayAdapter adapter = new StationsArrayAdapter(this, items);
+        stationsList.setAdapter(adapter);
         stationsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                StationsModel currentStation = items.get(position);
                 Intent i = new Intent(view.getContext(), BusesActivity.class);
-                i.putExtra("stationId", String.valueOf(id));
+                i.putExtra("stationId", currentStation.getId());
+                i.putExtra("stationName", currentStation.getName());
                 startActivityForResult(i, 0);
             }
         });
     }
-
 
     private void filterStationsEventKeyPress() {
         // Filter stations list as you tipe string longer than 3 characters
@@ -145,9 +121,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 2) {
-                    fillStationsListObj(s.toString());
+                    fillStationsList(s.toString());
                 } else {
-                    fillStationsListObj();
+                    fillStationsList();
                 }
             }
 
@@ -170,20 +146,21 @@ public class MainActivity extends AppCompatActivity {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 String search_station = filter_stations_edit.getText().toString();
                 if (search_station.length() > 2) {
-                    fillStationsListObj(search_station);
+                    fillStationsList(search_station);
                     return true;
                 } else {
-                    fillStationsListObj();
+                    fillStationsList();
                     return true;
                 }
             }
         });
     }
 
-    public void copyDataBase() throws IOException {
+    // method executinc the database copying
+    public void copyDataBase() {
         String package_name = context.getPackageName();
         String DB_PATH = "/data/data/" + package_name + "/databases/";
-        String DB_NAME = "blind_transport";
+        String DB_NAME = "blind_transport.db";
         try {
             InputStream myInput = context.getAssets().open(DB_NAME);
             File dbFile = new File(DB_PATH);

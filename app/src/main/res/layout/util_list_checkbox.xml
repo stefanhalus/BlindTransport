@@ -1,25 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-
-    <TextView android:id="@+id/rowTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:textSize="16sp"
-        tools:ignore="RelativeOverlap">
-    </TextView>
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
     <CheckBox
         android:id="@+id/rowCheckBox"
+        android:layout_width="@dimen/list_icon_size"
+        android:layout_height="@dimen/list_icon_size"
+        android:layout_marginBottom="@dimen/list_item_margin_bottom"
+        android:layout_marginStart="@dimen/checkbox_padding_left"
+        android:background="@drawable/icon_blind_transport_2"
+        android:contentDescription="@string/list_icon_description"
+        android:focusable="false"
+        android:paddingStart="@dimen/checkbox_padding_left"
+        android:paddingTop="@dimen/checkbox_padding_left"
+        android:scaleX="1.75"
+        android:scaleY="1.50"
+        tools:ignore="RtlSymmetry" />
+
+    <TextView
+        android:id="@+id/rowTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="6sp"
-        android:focusable="false" />
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/list_icon_margin_left"
+        android:textSize="@dimen/list_font_size"
+        android:textStyle="bold"
+        tools:ignore="RelativeOverlap,RtlSymmetry" />
+
 
 </RelativeLayout>

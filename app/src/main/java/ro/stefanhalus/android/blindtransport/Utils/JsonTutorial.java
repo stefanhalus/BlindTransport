@@ -1,11 +1,12 @@
-package ro.stefanhalus.android.blindtransport.DatabaseModel;
+package ro.stefanhalus.android.blindtransport.Utils;
 
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+
+import ro.stefanhalus.android.blindtransport.Models.LinesModel;
 
 public class JsonTutorial {
 

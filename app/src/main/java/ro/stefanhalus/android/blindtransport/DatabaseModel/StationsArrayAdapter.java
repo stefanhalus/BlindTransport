@@ -16,13 +16,14 @@ import java.util.ArrayList;
 
 import ro.stefanhalus.android.blindtransport.BusesActivity;
 import ro.stefanhalus.android.blindtransport.Models.LinesModel;
+import ro.stefanhalus.android.blindtransport.Models.StationsModel;
 import ro.stefanhalus.android.blindtransport.R;
 
-public class LinesArrayAdapter extends ArrayAdapter<LinesModel> {
+public class StationsArrayAdapter extends ArrayAdapter<StationsModel> {
     private final Context context;
-    private final ArrayList<LinesModel> values;
+    private final ArrayList<StationsModel> values;
 
-    public LinesArrayAdapter(Context context, ArrayList<LinesModel> values) {
+    public StationsArrayAdapter(Context context, ArrayList<StationsModel> values) {
         super(context, -1, values);
         this.context = context;
         this.values = values;
@@ -30,30 +31,14 @@ public class LinesArrayAdapter extends ArrayAdapter<LinesModel> {
 
     @Override
     public View getView(int position, View convertView, final ViewGroup parent) {
-        final LinesModel currentLine = values.get(position);
+        final StationsModel currentLine = values.get(position);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        @SuppressLint("ViewHolder") final View rowView = inflater.inflate(R.layout.util_list_checkbox, parent, false);
+        @SuppressLint("ViewHolder") final View rowView = inflater.inflate(R.layout.util_list_item_simple, parent, false);
         TextView textView = rowView.findViewById(R.id.rowTextView);
         ImageView imageView = rowView.findViewById(R.id.rowImageView);
         final CheckBox checkBox = rowView.findViewById(R.id.rowCheckBox);
         textView.setText(currentLine.getName());
 //        imageView.setImageResource(R.drawable.bus);
-        checkBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String textToast = "";
-                if (checkBox.isChecked()) {
-                    BusesActivity.selected.add(currentLine);
-                    textToast += "Linia " + currentLine.getName() + " \na fost adaugată!";
-                } else {
-                    BusesActivity.selected.remove(currentLine);
-                    textToast += "Linia " + currentLine.getName() + " \na fost eliminată!";
-                }
-                Toast toast = Toast.makeText(context, textToast, Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-            }
-        });
         return rowView;
     }
 }

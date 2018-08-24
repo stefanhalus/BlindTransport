@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,27 +7,28 @@
         android:id="@+id/rowImageView"
         android:layout_width="@dimen/list_icon_size"
         android:layout_height="@dimen/list_icon_size"
-
-        android:contentDescription="@string/list_icon_description" />
-
-    <TextView
-        android:id="@+id/rowTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/rowImageView"
-        android:layout_margin="20dp"
-        android:textSize="@dimen/list_font_size"
-        android:textStyle="bold"
-        tools:ignore="RelativeOverlap" />
+        android:contentDescription="@string/list_icon_description"
+        android:src="@drawable/busred" />
 
     <CheckBox
         android:id="@+id/rowCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/rowTextView"
-        android:padding="10dp"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="5sp"
-        android:focusable="false" />
+        android:layout_toEndOf="@id/rowImageView"
+        android:background="@drawable/busred"
+        android:focusable="false"
+        android:padding="10dp" />
+
+    <TextView
+        android:id="@+id/rowTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:layout_toEndOf="@id/rowTextView"
+        android:textSize="@dimen/list_font_size"
+        android:textStyle="bold" />
+
 
 </RelativeLayout>

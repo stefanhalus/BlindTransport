@@ -1,4 +1,4 @@
-package ro.stefanhalus.android.blindtransport.DatabaseModel;
+package ro.stefanhalus.android.blindtransport.Models;
 
 public class StationsModel {
     public static final String TABLE_NAME = "stations";
@@ -97,7 +97,7 @@ public class StationsModel {
         super();
     }
 
-    StationsModel(int id, String name) {
+    public StationsModel(int id, String name) {
         super();
         this.id = id;
         this.name = name;

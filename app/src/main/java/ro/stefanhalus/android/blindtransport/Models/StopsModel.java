@@ -1,4 +1,4 @@
-package ro.stefanhalus.android.blindtransport.DatabaseModel;
+package ro.stefanhalus.android.blindtransport.Models;
 
 public class StopsModel {
     public static final String TABLE_NAME = "stops";
