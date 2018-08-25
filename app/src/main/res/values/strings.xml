@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name"><b>Blind Transport</b></string>
+    <string name="app_name">Blind Transport</string>
     <string name="dialog_about_title">About application Transport</string>
     <string name="dialog_about_app_version"><b>1.0</b></string>
     <string name="dialog_about_app_developer"><b>Cristian Ștefan Halus</b></string>
