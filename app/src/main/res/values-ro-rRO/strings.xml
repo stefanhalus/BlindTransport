@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name"><b>Blind Transport</b></string>
+    <string name="dialog_about_title">Despre</string>
+    <string name="dialog_about_app_version"><b>1.0</b></string>
+    <string name="dialog_about_app_developer"><b>Cristian Ștefan Halus</b></string>
+    <string name="dialog_about_label_app_name">Aplicație</string>
+    <string name="dialog_about_label_version">Versiune</string>
+    <string name="dialog_about_label_developer">Autor</string>
+    <string name="dialog_about_label_owner">Client</string>
+    <string name="dialog_about_label_phone">Mobil</string>
+    <string name="dialog_about_label_email">Email</string>
+    <string name="dialog_about_label_www">Site</string>
+    <string name="dialog_about_label_address">Adresă</string>
+    <string name="dialog_about_owner_name"><b>Asoc. Babilon Travel</b></string>
+    <string name="dialog_about_owner_phone"><b>+40722634027</b></string>
+    <string name="dialog_about_owner_email"><b>gabi.nagy@babilontravel.net</b></string>
+    <string name="dialog_about_owner_www"><b>www.babilontravel.net</b></string>
+    <string name="dialog_about_owner_address"><b>Piața Cipariu, nr. 15, <br />bl. IIIA, sc. 2, ap. 64, <br />400191, Cluj-Napoca, <br />Cluj, Romania</b></string>
+    <string name="select_station">Filtrați stațiile</string>
+    <string name="menu_about_application">Despre aplicație</string>
+    <string name="list_icon_description">Icon stație</string>
+    <string name="ubil_button_ok">Bine</string>
+    <string name="ubil_button_cancel">Renunță</string>
+    <string name="ubil_button_yes">Da</string>
+    <string name="ubil_button_no">Nu</string>
+    <string name="ubil_button_close">Închide</string>
+    <string name="activity_buses_message">Stația %1$s:</string>
+    <string name="activity_buses_waiting_button">Aștept</string>
+    <string name="activity_waiting_button_notify">Notificare demo</string>
+    <string name="notification_title">A sosit linia %1$s</string>
+    <string name="notification_action_waiting">Pagina așteptare</string>
+    <string name="notification_channel_name">BT canal de notificare</string>
+    <string name="notification_channel_description">BT descrierea notificării vine aici</string>
+    <string name="notification_channel_app_name">BT APP canal de notificare</string>
+    <string name="notification_channel_app_description">BT APP descrierea notificării vine aici</string>
+</resources>
