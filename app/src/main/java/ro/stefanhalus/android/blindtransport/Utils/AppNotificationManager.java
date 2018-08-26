@@ -1,12 +1,16 @@
 package ro.stefanhalus.android.blindtransport.Utils;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -64,14 +68,21 @@ public class AppNotificationManager {
         notificationManager.notify(notificationId, notification);
     }
 
+    @SuppressLint("ResourceAsColor")
     private Notification createCustomNotification(final NotificationCompat.Action action, final String message, final PendingIntent contentIntent) {
         return new NotificationCompat.Builder(mContext, LINES_CHANEL_ID)
-                .setSmallIcon(R.drawable.icon_blind_transport)
-                .setContentTitle(mContext.getString(R.string.notification_title))
+                .setSmallIcon(R.drawable.icon_blind_transport_2)
+                .setContentTitle(mContext.getString(R.string.notification_title, message))
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setContentIntent(contentIntent)
-                .addAction(action)
+                .setColor(R.color.colorPrimary)
+                .setColorized(true)
+                .setPriority(7)
+                .setUsesChronometer(true)
+                .setTimeoutAfter(7777)
+                .setSound(Uri.parse("android.resource://" + mContext.getPackageName() + "l35"))
+//                .addAction(action)
                 .setGroup(GROUP_KEY_LINES)
                 .build();
     }
@@ -82,6 +93,37 @@ public class AppNotificationManager {
         channel.setDescription(chanelDescription);
         return channel;
     }
+
+    public void showBusArrived(final @NonNull LinesModel line) {
+        final Intent busArrivedIntent = new Intent(mContext, WaitingActivity.class);
+        final int notificationId = (int) (BASE_NOTIFICATION_ID + line.getId());
+        busArrivedIntent.putExtra(EXTRA_NOTIFICATION_ID, notificationId);
+        final PendingIntent busArrivedPendingIntent = PendingIntent.getActivity(
+                mContext,
+                notificationId,
+                busArrivedIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        final Intent detailLineIntent = new Intent(mContext, WaitingActivity.class);
+        detailLineIntent.putExtra(WaitingActivity.LINE_ID, line.getId());
+        PendingIntent detailPendingIntent = PendingIntent.getActivity(
+                mContext,
+                notificationId,
+                detailLineIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        final NotificationCompat.Action busArrivedAction = new NotificationCompat.Action(
+                R.drawable.icon_blind_transport_2,
+                mContext.getString(R.string.notification_action_waiting),
+                busArrivedPendingIntent);
+        final Notification notification = createCustomNotification(
+                busArrivedAction,
+                line.getName(),
+                detailPendingIntent);
+        showNotification(notification, notificationId);
+        VibrateUtil.busNotification(mContext);
+//        PlayBackUtil.play();
+    }
+
 
     public void showDetailsNotificationWithAllCitiesAction(final @NonNull LinesModel line) {
         final Intent allCitiesIntent = new Intent(mContext, WaitingActivity.class);

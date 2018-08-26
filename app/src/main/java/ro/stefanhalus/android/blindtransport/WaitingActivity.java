@@ -1,12 +1,14 @@
 package ro.stefanhalus.android.blindtransport;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -38,6 +40,7 @@ import java.util.Objects;
 
 import ro.stefanhalus.android.blindtransport.Models.LinesModel;
 import ro.stefanhalus.android.blindtransport.Utils.AppNotificationManager;
+import ro.stefanhalus.android.blindtransport.Utils.MessageUtil;
 import ro.stefanhalus.android.blindtransport.Utils.PermissionUtil;
 
 public class WaitingActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
@@ -49,11 +52,11 @@ public class WaitingActivity extends AppCompatActivity implements ActivityCompat
 
     public static String LINE_ID;
     private String CHANNEL_ID = "Blind Transport";
-    private Context context;
+    @SuppressLint("StaticFieldLeak")
+    public static Context context;
     private ProximityManager proximityManager;
     private TextView waitingLines;
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,34 +67,16 @@ public class WaitingActivity extends AppCompatActivity implements ActivityCompat
 
         waitingLines = findViewById(R.id.waitingLines);
 
-        String lineWaiting = "Așteptăm: ";
+        StringBuilder lineWaiting = new StringBuilder();
         ArrayList<LinesModel> lines = BusesActivity.selected;
         for (LinesModel line : lines) {
-            lineWaiting += "[" + line.getName() + "] ";
+            lineWaiting.append("[").append(line.getName()).append("] ");
         }
-//        waitingLines.setText(lineWaiting);
-//        notifyDemo();
-
-
-        ///////////
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//
-//            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-////                beaconStartWorking();
-////                waitingLines.setText(lineWaiting);
-//            } else {
-//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_FINE_LOCATION);
-//            }
-//        }
-
-//        waitingLines.setText(lineWaiting);
-
-        final String finalLineWaiting = lineWaiting;
 
         permissionChecker();
-        waitingLines.setText(finalLineWaiting);
+        waitingLines.setText(getString(R.string.activity_waiting_text, lineWaiting.toString()));
         beaconStartWorking();
+        notifyDemo();
     }
 
     private void permissionChecker() {
@@ -112,12 +97,12 @@ public class WaitingActivity extends AppCompatActivity implements ActivityCompat
                     @Override
                     public void onPermissionPreviouslyDenied() {
                         //show a dialog explaining permission and then request permission
-                        permissionAllert("BLUETOOTH", "Necesar pentru a funcționa beaconii");
+                        new MessageUtil(context, "BLUETOOTH", "Necesar pentru a funcționa beaconii");
                     }
 
                     @Override
                     public void onPermissionDisabled() {
-                        permissionAllert("BLUETOOTH", "Permisiune dezactivată");
+                        new MessageUtil(context, "BLUETOOTH", "Permisiune dezactivată");
                         Toast.makeText(context, "Permission BLUETOOTH Disabled.", Toast.LENGTH_LONG).show();
                     }
 
@@ -143,12 +128,12 @@ public class WaitingActivity extends AppCompatActivity implements ActivityCompat
                     @Override
                     public void onPermissionPreviouslyDenied() {
                         //show a dialog explaining permission and then request permission
-                        permissionAllert("BLUETOOTH_ADMIN", "Necesar pentru a funcționa beaconii");
+                        new MessageUtil(context, "BLUETOOTH_ADMIN", "Necesar pentru a funcționa beaconii");
                     }
 
                     @Override
                     public void onPermissionDisabled() {
-                        permissionAllert("BLUETOOTH_ADMIN", "Permisiune dezactivată");
+                        new MessageUtil(context, "BLUETOOTH_ADMIN", "Permisiune dezactivată");
                         Toast.makeText(context, "Permission BLUETOOTH_ADMIN Disabled.", Toast.LENGTH_LONG).show();
                     }
 
@@ -174,13 +159,13 @@ public class WaitingActivity extends AppCompatActivity implements ActivityCompat
                     @Override
                     public void onPermissionPreviouslyDenied() {
                         //show a dialog explaining permission and then request permission
-                        permissionAllert("ACCESS_FINE_LOCATION", "Necesar pentru a funcționa beaconii");
+                        new MessageUtil(context, "ACCESS_FINE_LOCATION", "Necesar pentru a funcționa beaconii");
 
                     }
 
                     @Override
                     public void onPermissionDisabled() {
-                        permissionAllert("BLUETOOTH_ADMIN", "Permisiune dezactivată");
+                        new MessageUtil(context, "BLUETOOTH_ADMIN", "Permisiune dezactivată");
                         Toast.makeText(context, "Permission ACCESS_FINE_LOCATION Disabled.", Toast.LENGTH_LONG).show();
                     }
 
@@ -191,52 +176,31 @@ public class WaitingActivity extends AppCompatActivity implements ActivityCompat
                 });
     }
 
-    private void permissionAllert(String title, String message) {
-        AlertDialog.Builder builder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder = new AlertDialog.Builder(context, android.R.style.Theme_Material_Dialog_Alert);
-        } else {
-            builder = new AlertDialog.Builder(context);
-        }
-        builder.setTitle(title);
-        builder.setMessage(message);
-        builder.setIcon(R.drawable.icon_blind_transport_2);
-        builder.show();
-    }
-
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_REQUEST_BLUETOOTH: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     waitingLines.setText("Avem BLUETOOTH");
-                } else {
-
                 }
                 return;
             }
             case PERMISSION_REQUEST_FINE_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     waitingLines.setText("Avem FINE LOCATION");
-                } else {
-
                 }
                 return;
             }
             case PERMISSION_REQUEST_INTERNET: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     waitingLines.setText("Avem INTERNET");
-                } else {
-
                 }
-                return;
             }
         }
 
     }
 
     private void beaconStartWorking() {
-
 
         KontaktSDK.initialize("OvwtQgASSMpYzLCfgQoJlPEALyIUzWHi");
 
@@ -322,8 +286,10 @@ public class WaitingActivity extends AppCompatActivity implements ActivityCompat
             public void onClick(View v) {
                 try {
                     AppNotificationManager notify = new AppNotificationManager(context);
-                    notify.showDetailsNotificationWithAllCitiesAction(new LinesModel(1, "77B", 1, 22));
+                    notify.showBusArrived(new LinesModel(1, "77B", 1, 22));
+
                 } catch (Exception e) {
+                    new MessageUtil(context, "Notificare ERR", "Notificarea nu funcționează");
                     e.printStackTrace();
                 }
             }

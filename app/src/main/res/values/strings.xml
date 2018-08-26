@@ -28,6 +28,7 @@
     <string name="ubil_button_close">Close</string>
     <string name="activity_buses_message">Station %1$s:</string>
     <string name="activity_buses_waiting_button">I am wainting</string>
+    <string name="activity_waiting_text">Waiting %1$s</string>
     <string name="activity_waiting_button_notify">Demo notification</string>
 
     <string name="notification_title">Line number %1$s arrived</string>
