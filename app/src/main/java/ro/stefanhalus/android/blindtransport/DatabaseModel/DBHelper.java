@@ -17,7 +17,7 @@ import ro.stefanhalus.android.blindtransport.Models.StopsModel;
 
 public class DBHelper extends SQLiteOpenHelper {
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
 
     // Database Name
     private static final String DATABASE_NAME = "blind_transport.db";

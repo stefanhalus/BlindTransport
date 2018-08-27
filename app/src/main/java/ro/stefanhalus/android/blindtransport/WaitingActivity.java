@@ -35,9 +35,11 @@ import com.kontakt.sdk.android.common.profile.IBeaconRegion;
 import com.kontakt.sdk.android.common.profile.IEddystoneDevice;
 import com.kontakt.sdk.android.common.profile.IEddystoneNamespace;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import config.Keys;
 import ro.stefanhalus.android.blindtransport.Models.LinesModel;
 import ro.stefanhalus.android.blindtransport.Utils.AppNotificationManager;
 import ro.stefanhalus.android.blindtransport.Utils.MessageUtil;
@@ -48,7 +50,9 @@ public class WaitingActivity extends AppCompatActivity implements ActivityCompat
     private static final int PERMISSION_REQUEST_BLUETOOTH = 0;
     private static final int PERMISSION_REQUEST_BLUETOOTH_ADMIN = 1;
     private static final int PERMISSION_REQUEST_FINE_LOCATION = 2;
+    private static final int PERMISSION_REQUEST_COARSE_LOCATION = 5;
     private static final int PERMISSION_REQUEST_INTERNET = 3;
+    private static final int PERMISSION_REQUEST_NETWORK_STATE = 4;
 
     public static String LINE_ID;
     private String CHANNEL_ID = "Blind Transport";
@@ -74,140 +78,20 @@ public class WaitingActivity extends AppCompatActivity implements ActivityCompat
         }
 
         permissionChecker();
-        waitingLines.setText(getString(R.string.activity_waiting_text, lineWaiting.toString()));
-        beaconStartWorking();
-        notifyDemo();
-    }
 
-    private void permissionChecker() {
-        final Activity thisActivity = (Activity) context;
-        PermissionUtil.checkPermission(
-                context,
-                Manifest.permission.BLUETOOTH,
-                new PermissionUtil.PermissionAskListener() {
-                    @Override
-                    public void onNeedPermission() {
-                        ActivityCompat.requestPermissions(
-                                thisActivity,
-                                new String[]{Manifest.permission.BLUETOOTH},
-                                PERMISSION_REQUEST_BLUETOOTH
-                        );
-                    }
 
-                    @Override
-                    public void onPermissionPreviouslyDenied() {
-                        //show a dialog explaining permission and then request permission
-                        new MessageUtil(context, "BLUETOOTH", "Necesar pentru a funcționa beaconii");
-                    }
 
-                    @Override
-                    public void onPermissionDisabled() {
-                        new MessageUtil(context, "BLUETOOTH", "Permisiune dezactivată");
-                        Toast.makeText(context, "Permission BLUETOOTH Disabled.", Toast.LENGTH_LONG).show();
-                    }
+        KontaktSDK.initialize(Keys.kontaktioApiKey);
 
-                    @Override
-                    public void onPermissionGranted() {
-//                        permissionAllert("BLUETOOTH", "Permisiune activată");
-                    }
-                });
-
-        PermissionUtil.checkPermission(
-                context,
-                Manifest.permission.BLUETOOTH_ADMIN,
-                new PermissionUtil.PermissionAskListener() {
-                    @Override
-                    public void onNeedPermission() {
-                        ActivityCompat.requestPermissions(
-                                thisActivity,
-                                new String[]{Manifest.permission.BLUETOOTH_ADMIN},
-                                PERMISSION_REQUEST_BLUETOOTH_ADMIN
-                        );
-                    }
-
-                    @Override
-                    public void onPermissionPreviouslyDenied() {
-                        //show a dialog explaining permission and then request permission
-                        new MessageUtil(context, "BLUETOOTH_ADMIN", "Necesar pentru a funcționa beaconii");
-                    }
-
-                    @Override
-                    public void onPermissionDisabled() {
-                        new MessageUtil(context, "BLUETOOTH_ADMIN", "Permisiune dezactivată");
-                        Toast.makeText(context, "Permission BLUETOOTH_ADMIN Disabled.", Toast.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void onPermissionGranted() {
-//                        permissionAllert("BLUETOOTH_ADMIN", "Permisiune activată");
-                    }
-                });
-
-        PermissionUtil.checkPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                new PermissionUtil.PermissionAskListener() {
-                    @Override
-                    public void onNeedPermission() {
-                        ActivityCompat.requestPermissions(
-                                thisActivity,
-                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                PERMISSION_REQUEST_FINE_LOCATION
-                        );
-                    }
-
-                    @Override
-                    public void onPermissionPreviouslyDenied() {
-                        //show a dialog explaining permission and then request permission
-                        new MessageUtil(context, "ACCESS_FINE_LOCATION", "Necesar pentru a funcționa beaconii");
-
-                    }
-
-                    @Override
-                    public void onPermissionDisabled() {
-                        new MessageUtil(context, "BLUETOOTH_ADMIN", "Permisiune dezactivată");
-                        Toast.makeText(context, "Permission ACCESS_FINE_LOCATION Disabled.", Toast.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void onPermissionGranted() {
-//                        permissionAllert("BLUETOOTH_ADMIN", "Permisiune activată");
-                    }
-                });
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_REQUEST_BLUETOOTH: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    waitingLines.setText("Avem BLUETOOTH");
-                }
-                return;
-            }
-            case PERMISSION_REQUEST_FINE_LOCATION: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    waitingLines.setText("Avem FINE LOCATION");
-                }
-                return;
-            }
-            case PERMISSION_REQUEST_INTERNET: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    waitingLines.setText("Avem INTERNET");
-                }
-            }
-        }
-
-    }
-
-    private void beaconStartWorking() {
-
-        KontaktSDK.initialize("OvwtQgASSMpYzLCfgQoJlPEALyIUzWHi");
-
-        proximityManager = ProximityManagerFactory.create(this);
+        proximityManager = ProximityManagerFactory.create(context);
         proximityManager.setIBeaconListener(createIBeaconListener());
-        proximityManager.setEddystoneListener(createEddystoneListener());
+//        proximityManager.setEddystoneListener(createEddystoneListener());
 
+
+
+        waitingLines.setText(getString(R.string.activity_waiting_text, lineWaiting.toString()));
+//        beaconStartWorking();
+        notifyBus(new LinesModel(1, "99X",2, 69));
     }
 
     @Override
@@ -242,20 +126,33 @@ public class WaitingActivity extends AppCompatActivity implements ActivityCompat
         return new SimpleIBeaconListener() {
             @Override
             public void onIBeaconDiscovered(IBeaconDevice ibeacon, IBeaconRegion region) {
-                Log.i("Sample", "IBeacon discovered: " + ibeacon.toString());
+                notifyBus(new LinesModel(1, "69 I",2, 3));
+                DecimalFormat df = new DecimalFormat("0.00");
+                new MessageUtil(context, "IBeacon detected", "Am gasit un iBeacon \n" +
+                        "Name: " + ibeacon.getName() +
+                        " \nAddress: " + ibeacon.getAddress() +
+                        " \nUUID: " + ibeacon.getUniqueId() +
+                        " \nMajor: " + ibeacon.getMajor() +
+                        " \nMinor: " + ibeacon.getMinor() +
+                        " \nDistance: " +
+                        df.format(ibeacon.getDistance()) +
+                " m \nRSSI: " + ibeacon.getRssi() +
+                        "\nTX power: " + ibeacon.getTxPower()  +
+                        "\nBattery: " + ibeacon.getBatteryPower() );
+                Log.i("Sample ", " IBeacon discovered: " + ibeacon.toString());
             }
         };
     }
 
-    private EddystoneListener createEddystoneListener() {
-        return new SimpleEddystoneListener() {
-            @Override
-            public void onEddystoneDiscovered(IEddystoneDevice eddystone, IEddystoneNamespace namespace) {
-                Log.i("Sample", "Eddystone discovered: " + eddystone.toString());
-            }
-        };
-    }
-
+//    private EddystoneListener createEddystoneListener() {
+//        return new SimpleEddystoneListener() {
+//            @Override
+//            public void onEddystoneDiscovered(IEddystoneDevice eddystone, IEddystoneNamespace namespace) {
+//                notifyBus(new LinesModel(1, "69 E",2, 3));
+//                Log.i("Sample", "Eddystone discovered: " + eddystone.toString());
+//            }
+//        };
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -280,13 +177,219 @@ public class WaitingActivity extends AppCompatActivity implements ActivityCompat
         return super.onOptionsItemSelected(item);
     }
 
-    public void notifyDemo() {
+
+    private void permissionChecker() {
+        final Activity thisActivity = (Activity) context;
+        PermissionUtil.checkPermission(
+                context,
+                Manifest.permission.BLUETOOTH,
+                new PermissionUtil.PermissionAskListener() {
+                    @Override
+                    public void onNeedPermission() {
+                        ActivityCompat.requestPermissions(
+                                thisActivity,
+                                new String[]{Manifest.permission.BLUETOOTH},
+                                PERMISSION_REQUEST_BLUETOOTH
+                        );
+                    }
+
+                    @Override
+                    public void onPermissionPreviouslyDenied() {
+                        //show a dialog explaining permission and then request permission
+                        new MessageUtil(context, "BLUETOOTH", "Necesar pentru a funcționa beaconii");
+                    }
+
+                    @Override
+                    public void onPermissionDisabled() {
+                        new MessageUtil(context, "BLUETOOTH", "Permisiune dezactivată");
+                        Toast.makeText(context, "Permission BLUETOOTH Disabled.", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onPermissionGranted() {
+
+                    }
+                });
+
+        PermissionUtil.checkPermission(
+                context,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                new PermissionUtil.PermissionAskListener() {
+                    @Override
+                    public void onNeedPermission() {
+                        ActivityCompat.requestPermissions(
+                                thisActivity,
+                                new String[]{Manifest.permission.BLUETOOTH_ADMIN},
+                                PERMISSION_REQUEST_BLUETOOTH_ADMIN
+                        );
+                    }
+
+                    @Override
+                    public void onPermissionPreviouslyDenied() {
+                        //show a dialog explaining permission and then request permission
+                        new MessageUtil(context, "BLUETOOTH_ADMIN", "Necesar pentru a funcționa beaconii");
+                    }
+
+                    @Override
+                    public void onPermissionDisabled() {
+                        new MessageUtil(context, "BLUETOOTH_ADMIN", "Permisiune dezactivată");
+                        Toast.makeText(context, "Permission BLUETOOTH_ADMIN Disabled.", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onPermissionGranted() {
+
+                    }
+                });
+
+//        PERMISSION_REQUEST_NETWORK_STATE
+        PermissionUtil.checkPermission(
+                context,
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                new PermissionUtil.PermissionAskListener() {
+                    @Override
+                    public void onNeedPermission() {
+                        ActivityCompat.requestPermissions(
+                                thisActivity,
+                                new String[]{Manifest.permission.ACCESS_NETWORK_STATE},
+                                PERMISSION_REQUEST_NETWORK_STATE
+                        );
+                    }
+
+                    @Override
+                    public void onPermissionPreviouslyDenied() {
+                        //show a dialog explaining permission and then request permission
+                        new MessageUtil(context, "ACCESS_NETWORK_STATE", "Necesar pentru a funcționa beaconii");
+
+                    }
+
+                    @Override
+                    public void onPermissionDisabled() {
+                        new MessageUtil(context, "ACCES_NETWORK_STATE", "Permisiune dezactivată");
+                        Toast.makeText(context, "Permission ACCESS_NETWORK_STATE Disabled.", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onPermissionGranted() {
+
+                    }
+                });
+
+        PermissionUtil.checkPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                new PermissionUtil.PermissionAskListener() {
+                    @Override
+                    public void onNeedPermission() {
+                        ActivityCompat.requestPermissions(
+                                thisActivity,
+                                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                                PERMISSION_REQUEST_COARSE_LOCATION
+                        );
+                    }
+
+                    @Override
+                    public void onPermissionPreviouslyDenied() {
+                        //show a dialog explaining permission and then request permission
+                        new MessageUtil(context, "ACCESS_COARSE_LOCATION", "Necesar pentru a funcționa beaconii");
+
+                    }
+
+                    @Override
+                    public void onPermissionDisabled() {
+                        new MessageUtil(context, "ACCESS_COARSE_LOCATION", "Permisiune dezactivată");
+                        Toast.makeText(context, "Permission ACCESS_COARSE_LOCATION Disabled.", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onPermissionGranted() {
+
+                    }
+                });
+
+        PermissionUtil.checkPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                new PermissionUtil.PermissionAskListener() {
+                    @Override
+                    public void onNeedPermission() {
+                        ActivityCompat.requestPermissions(
+                                thisActivity,
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                PERMISSION_REQUEST_FINE_LOCATION
+                        );
+                    }
+
+                    @Override
+                    public void onPermissionPreviouslyDenied() {
+                        //show a dialog explaining permission and then request permission
+                        new MessageUtil(context, "ACCESS_FINE_LOCATION", "Necesar pentru a funcționa beaconii");
+
+                    }
+
+                    @Override
+                    public void onPermissionDisabled() {
+                        new MessageUtil(context, "ACCESS_FINE_LOCATION", "Permisiune dezactivată");
+                        Toast.makeText(context, "Permission ACCESS_FINE_LOCATION Disabled.", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onPermissionGranted() {
+
+                    }
+                });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_BLUETOOTH: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    waitingLines.setText("Avem BLUETOOTH");
+                }
+                return;
+            }
+            case PERMISSION_REQUEST_BLUETOOTH_ADMIN: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    waitingLines.setText("Avem BLUETOOTH_ADMIN");
+                }
+                return;
+            }
+            case PERMISSION_REQUEST_NETWORK_STATE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    waitingLines.setText("Avem NETWORK STATE");
+                }
+                return;
+            }
+            case PERMISSION_REQUEST_FINE_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    waitingLines.setText("Avem INTERNET");
+                }
+                return;
+            }
+            case PERMISSION_REQUEST_INTERNET: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    waitingLines.setText("Avem INTERNET");
+                }
+            }
+        }
+
+    }
+
+//    private void beaconStartWorking() {
+//
+//
+//
+//    }
+
+
+    public void notifyBus(final LinesModel bus) {
         Button btnNotify = findViewById(R.id.btnNotify);
         btnNotify.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 try {
                     AppNotificationManager notify = new AppNotificationManager(context);
-                    notify.showBusArrived(new LinesModel(1, "77B", 1, 22));
+                    notify.showBusArrived(bus);
 
                 } catch (Exception e) {
                     new MessageUtil(context, "Notificare ERR", "Notificarea nu funcționează");
