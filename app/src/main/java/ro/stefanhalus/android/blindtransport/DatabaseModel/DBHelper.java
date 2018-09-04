@@ -17,7 +17,7 @@ import ro.stefanhalus.android.blindtransport.Models.StopsModel;
 
 public class DBHelper extends SQLiteOpenHelper {
     // Database Version
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     // Database Name
     private static final String DATABASE_NAME = "blind_transport.db";
@@ -143,8 +143,8 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         String sql = "SELECT `stops`.`line_id`, `lines`.`id` AS `id`, `lines`.`name` AS `name`, `lines`.`start` AS `start`, `lines`.`end` AS `end` FROM `stops` " +
                 "INNER JOIN `lines` ON `stops`.`line_id` = `lines`.`id` " +
-                "WHERE `stops`.`station_id` = ? " +
-                "ORDER BY `lines`.`name` ASC; ";
+                "WHERE `stops`.`station_id` = ?" +
+                "ORDER BY `id` ASC; ";
         @SuppressLint("Recycle") Cursor res = db.rawQuery(sql, new String[]{ String.valueOf(stationId) });
         res.moveToFirst();
         while (!res.isAfterLast()) {
@@ -167,11 +167,11 @@ public class DBHelper extends SQLiteOpenHelper {
             cursor = db.query(
                     StationsModel.TABLE_NAME,
                     new String[]{ StationsModel.COLUMN_ID, StationsModel.COLUMN_NAME },
+                    " (SELECT COUNT(`station_id`) AS `rows` FROM `stops` WHERE `stops`.`station_id` = `stations`.`id`) > 0",
                     null,
                     null,
                     null,
-                    null,
-                    null
+                    StationsModel.COLUMN_NAME
             );
 cursor.moveToFirst();
 if (!cursor.isAfterLast()) {

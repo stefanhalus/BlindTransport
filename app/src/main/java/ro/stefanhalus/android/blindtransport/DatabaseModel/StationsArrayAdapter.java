@@ -38,7 +38,6 @@ public class StationsArrayAdapter extends ArrayAdapter<StationsModel> {
         ImageView imageView = rowView.findViewById(R.id.rowImageView);
         final CheckBox checkBox = rowView.findViewById(R.id.rowCheckBox);
         textView.setText(currentLine.getName());
-//        imageView.setImageResource(R.drawable.bus);
         return rowView;
     }
 }

@@ -12,7 +12,7 @@
         android:layout_alignParentStart="true"
         android:layout_marginStart="@dimen/checkbox_padding_left"
         android:contentDescription="@string/list_icon_description"
-        android:scaleType="fitEnd"
+        android:scaleType="fitCenter"
         android:src="@drawable/icon_station_people" />
 
     <TextView

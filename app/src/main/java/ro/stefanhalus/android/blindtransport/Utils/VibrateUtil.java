@@ -5,6 +5,7 @@ import android.os.Vibrator;
 
 public class VibrateUtil {
 
+    public static long[] patternBusMorse = new long[]{20, 400, 50, 200, 50, 200, 50, 200, 300, 200, 50, 200, 50, 400, 300, 200, 50, 200, 50, 200, 500};
     /**
      * Morse code saying bus
      */

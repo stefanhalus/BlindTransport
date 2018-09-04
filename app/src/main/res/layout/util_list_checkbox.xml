@@ -12,13 +12,12 @@
         android:layout_marginBottom="@dimen/list_item_margin_bottom"
         android:layout_marginStart="@dimen/checkbox_padding_left"
         android:background="@drawable/icon_blind_transport_2"
-        android:contentDescription="@string/list_icon_description"
+        android:contentDescription=""
         android:focusable="false"
         android:paddingStart="@dimen/checkbox_padding_left"
         android:paddingTop="@dimen/checkbox_padding_left"
         android:scaleX="1.75"
-        android:scaleY="1.50"
-        tools:ignore="RtlSymmetry" />
+        android:scaleY="1.50" />
 
     <TextView
         android:id="@+id/rowTextView"
@@ -27,8 +26,7 @@
         android:layout_alignParentStart="true"
         android:layout_marginStart="@dimen/list_icon_margin_left"
         android:textSize="@dimen/list_font_size"
-        android:textStyle="bold"
-        tools:ignore="RelativeOverlap,RtlSymmetry" />
+        android:textStyle="bold"  />
 
 
 </RelativeLayout>
