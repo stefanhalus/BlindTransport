@@ -17,7 +17,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.view.accessibility.AccessibilityManager;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,24 +34,35 @@ import com.kontakt.sdk.android.common.KontaktSDK;
 import com.kontakt.sdk.android.common.profile.IBeaconDevice;
 import com.kontakt.sdk.android.common.profile.IBeaconRegion;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import config.Keys;
+import ro.stefanhalus.android.blindtransport.DatabaseModel.CardsArrayAdapter;
+import ro.stefanhalus.android.blindtransport.DatabaseModel.DBHelper;
+import ro.stefanhalus.android.blindtransport.Models.BeaconFoundModel;
+import ro.stefanhalus.android.blindtransport.Models.LinesFoundModel;
 import ro.stefanhalus.android.blindtransport.Models.LinesModel;
 import ro.stefanhalus.android.blindtransport.Utils.NotificationReceiver;
-import ro.stefanhalus.android.blindtransport.Utils.VibrateUtil;
 
 import static ro.stefanhalus.android.blindtransport.App.CHANNEL_1_ID;
 import static ro.stefanhalus.android.blindtransport.App.CHANNEL_2_ID;
 
 public class WaitingActivity extends AppCompatActivity {
+    private DBHelper btDb = new DBHelper(this);
     private Vibrator vibrator;
     private NotificationManagerCompat notificationManager;
     @SuppressLint("StaticFieldLeak")
     public static Context context;
     private ProximityManager proximityManager;
     private TextView waitingLines;
+    private HashMap<Integer, LinesFoundModel> foundLines;
+
+    CardsArrayAdapter adapter;
+    ListView lv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +73,10 @@ public class WaitingActivity extends AppCompatActivity {
         notificationManager = NotificationManagerCompat.from(this);
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 
+        foundLines = new HashMap<>();
+
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Așteptăm...");
+//        getSupportActionBar().setTitle("Așteptăm...");
 
         waitingLines = findViewById(R.id.waitingLines);
         fillWaitingLines();
@@ -72,7 +86,6 @@ public class WaitingActivity extends AppCompatActivity {
         proximityManager.setIBeaconListener(createIBeaconListener());
         proximityManager.setScanStatusListener(createScanStatusListener());
         configureFilters();
-        notifyBus();
     }
 
     @Override
@@ -83,7 +96,7 @@ public class WaitingActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        proximityManager.stopScanning();
+//        proximityManager.stopScanning();
         super.onStop();
     }
 
@@ -130,41 +143,95 @@ public class WaitingActivity extends AppCompatActivity {
         return new SimpleIBeaconListener() {
             @Override
             public void onIBeaconDiscovered(IBeaconDevice ibeacon, IBeaconRegion region) {
-//                BeaconScanResult.found.add(ibeacon);
+                BeaconFoundModel beaconColectedData = beaconColectingData(ibeacon);
+                beaconStore(ibeacon, beaconColectedData);
+                beaconAdvertiser();
+            }
 
-//                sendOnChannel1(new LinesModel(1, ibeacon.getName(), 1, 2));
-//                DecimalFormat df = new DecimalFormat("0.00");
-//                new MessageUtil(context, "IBeacon detected", "Am gasit un iBeacon \n" +
-//                        "Name: " + ibeacon.getName() +
-////                        " \nAddress: " + ibeacon.getAddress() +
-//                        " \nUUID: " + ibeacon.getUniqueId() +
-//                        " \nMajor: " + ibeacon.getMajor() +
-//                        " \nMinor: " + ibeacon.getMinor() +
-//                        " \nDistance: " +
-//                        df.format(ibeacon.getDistance()) +
-//                        " \nProximity UID: " + ibeacon.getProximityUUID() +
-////                        " m \nRSSI: " + ibeacon.getRssi() +
-////                        " \nTX power: " + ibeacon.getTxPower() +
-//                        " \nBattery: " + ibeacon.getBatteryPower());
+            @Override
+            public void onIBeaconLost(IBeaconDevice ibeacon, IBeaconRegion region) {
+                beaconClean(ibeacon);
             }
         };
     }
 
-    public void notifyBus() {
-        Button btnDemo = findViewById(R.id.btnNotify);
-        btnDemo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendOnChannel1(new LinesModel(1, "35",1,2));
-            }
-        });
+    // Collecting beacon data
+    private BeaconFoundModel beaconColectingData(IBeaconDevice ibeacon) {
+        BeaconFoundModel line = btDb.getBeaconByName(ibeacon.getUniqueId());
+        BeaconFoundModel beaconFound = new BeaconFoundModel();
+        beaconFound.setBeaconName(ibeacon.getName());
+        beaconFound.setBeaconUUID(ibeacon.getUniqueId());
+        beaconFound.setBeaconProximityUid(ibeacon.getProximityUUID().toString());
+        beaconFound.setBeaconMajor(ibeacon.getMajor());
+        beaconFound.setBeaconMinor(ibeacon.getMinor());
+        beaconFound.setBeaconDistance((Double) ibeacon.getDistance());
+        beaconFound.setBeaconBattery(ibeacon.getBatteryPower());
+        beaconFound.setLineId(line.getLineId());
+        beaconFound.setLineName(line.getLineName());
+        beaconFound.setLineStart(line.getLineStart());
+        beaconFound.setLineEnd(line.getLineEnd());
+        beaconFound.setLineStartName(line.getLineStartName());
+        beaconFound.setLineEndName(line.getLineEndName());
+        return beaconFound;
     }
 
-    public void sendOnChannel1(LinesModel line) {
-        String lineOk = line.getName().toLowerCase().replace(" ", "");
-        Uri notificationLine =  Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName() + "/raw/l_" + lineOk);
-        String title = "Linia " + line.getName() + " a sosit!";
-        String message = "A sosit " + line.getName() + " în direcția ";
+    // FoundBeacons cleanup
+    private void beaconClean(IBeaconDevice ibeacon) {
+        if (foundLines.containsKey(ibeacon.getMinor()))
+            foundLines.remove(ibeacon.getMinor());
+    }
+
+    // FoundBeacons store device
+    private void beaconStore(IBeaconDevice beacon, BeaconFoundModel line) {
+        Double distance = beacon.getDistance();
+        if (foundLines.containsKey(beacon.getMinor())) {
+            LinesFoundModel inHashMap = foundLines.get(beacon.getMinor());
+            if (beaconFrontBack(beacon).equals("B")) {
+                foundLines.remove(beacon.getMinor());
+                inHashMap.setLineDistanceBack(distance);
+                foundLines.put(beacon.getMinor(), inHashMap);
+            } else if (beaconFrontBack(beacon).equals("A")) {
+                foundLines.remove(beacon.getMinor());
+                inHashMap.setLineDistanceFront(distance);
+                foundLines.put(beacon.getMinor(), inHashMap);
+            }
+        } else {
+            Double distFront = .0, distBack = .0;
+            if (beaconFrontBack(beacon).equals("F")) {
+                distFront = distance;
+            } else if (beaconFrontBack(beacon).equals("B")) {
+                distBack = distance;
+            }
+            foundLines.put(beacon.getMinor(), new LinesFoundModel(line.getLineName(), line.getLineStart(), line.getLineEnd(), distBack, distFront));
+        }
+    }
+
+    private void beaconAdvertiser() {
+        for (Map.Entry<Integer, LinesFoundModel> entry : foundLines.entrySet()) {
+            advertiseNotificationChannel1(entry.getValue());
+        }
+        Collection<LinesFoundModel> values = foundLines.values();
+        ArrayList<LinesFoundModel> listOfValues = new ArrayList<>(values);
+        lv = (ListView) findViewById(R.id.lv);
+        adapter = new CardsArrayAdapter(this, listOfValues);
+        lv.setAdapter(adapter);
+    }
+
+    private String beaconFrontBack(IBeaconDevice beacon) {
+        return beacon.getName().replace("CTP0" + Integer.toString(beacon.getMinor()), "");
+    }
+
+    public void advertiseNotificationChannel1(LinesFoundModel linesFound) {
+        long[] busMorse = new long[]{20, 400, 50, 200, 50, 200, 50, 200, 300, 200, 50, 200, 50, 400, 300, 200, 50, 200, 50, 200, 500};
+        String lineOk = linesFound.getLineName().toLowerCase().replace(" ", "");
+        Uri notificationLine;
+        if (screenReader()) {
+            notificationLine = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName() + "/raw/notify");
+        } else {
+            notificationLine = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName() + "/raw/l_" + lineOk);
+        }
+        String title = "Linia " + linesFound.getLineName() + " a sosit!";
+        String message = "Linia " + linesFound.getLineName() + " ";
         Intent broadcastIntent = new Intent(this, NotificationReceiver.class);
         broadcastIntent.putExtra("toastMessage", message);
         PendingIntent actionIntent = PendingIntent.getBroadcast(this, 0, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -181,7 +248,7 @@ public class WaitingActivity extends AppCompatActivity {
                 .setColorized(true)
                 .setColor(Color.parseColor("#3a013f"))
                 .setLights(Color.MAGENTA, 5000, 3000)
-                .setVibrate(VibrateUtil.patternBusMorse)
+                .setVibrate(busMorse)
                 .setSound(notificationLine)
                 .build();
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
@@ -214,24 +281,21 @@ public class WaitingActivity extends AppCompatActivity {
         waitingLines.setText(getString(R.string.activity_waiting_text, lineWaiting.toString()));
     }
 
-    private void showToast(final String message) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(WaitingActivity.this, message, Toast.LENGTH_SHORT).show();
-            }
-        });
+    private boolean screenReader() {
+        AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+        boolean isAccessibilityEnabled = am.isEnabled();
+        boolean isExploreByTouchEnabled = am.isTouchExplorationEnabled();
+        return isExploreByTouchEnabled;
     }
 
     private ScanStatusListener createScanStatusListener() {
         return new SimpleScanStatusListener() {
             @Override
             public void onScanStart() {
-                showToast("Scanning started");
             }
+
             @Override
             public void onScanStop() {
-                showToast("Scanning stopped");
             }
         };
     }

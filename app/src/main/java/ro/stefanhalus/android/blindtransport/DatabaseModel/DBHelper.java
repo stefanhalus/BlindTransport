@@ -11,13 +11,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 
+import ro.stefanhalus.android.blindtransport.Models.BeaconFoundModel;
 import ro.stefanhalus.android.blindtransport.Models.LinesModel;
 import ro.stefanhalus.android.blindtransport.Models.StationsModel;
 import ro.stefanhalus.android.blindtransport.Models.StopsModel;
 
 public class DBHelper extends SQLiteOpenHelper {
     // Database Version
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     // Database Name
     private static final String DATABASE_NAME = "blind_transport.db";
@@ -145,7 +146,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "INNER JOIN `lines` ON `stops`.`line_id` = `lines`.`id` " +
                 "WHERE `stops`.`station_id` = ?" +
                 "ORDER BY `id` ASC; ";
-        @SuppressLint("Recycle") Cursor res = db.rawQuery(sql, new String[]{ String.valueOf(stationId) });
+        @SuppressLint("Recycle") Cursor res = db.rawQuery(sql, new String[]{String.valueOf(stationId)});
         res.moveToFirst();
         while (!res.isAfterLast()) {
             LinesModel line = new LinesModel();
@@ -166,15 +167,15 @@ public class DBHelper extends SQLiteOpenHelper {
             SQLiteDatabase db = this.getWritableDatabase();
             cursor = db.query(
                     StationsModel.TABLE_NAME,
-                    new String[]{ StationsModel.COLUMN_ID, StationsModel.COLUMN_NAME },
+                    new String[]{StationsModel.COLUMN_ID, StationsModel.COLUMN_NAME},
                     " (SELECT COUNT(`station_id`) AS `rows` FROM `stops` WHERE `stops`.`station_id` = `stations`.`id`) > 0",
                     null,
                     null,
                     null,
                     StationsModel.COLUMN_NAME
             );
-cursor.moveToFirst();
-if (!cursor.isAfterLast()) {
+            cursor.moveToFirst();
+            if (!cursor.isAfterLast()) {
                 do {
                     dataArrays.add(new StationsModel(cursor.getInt(0), cursor.getString(1)));
                 }
@@ -268,6 +269,22 @@ if (!cursor.isAfterLast()) {
         cursor.close();
 
         return station;
+    }
+
+    public BeaconFoundModel getBeaconByName(String search) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT * FROM v_beacons_lines WHERE beacon_uuid = ? ;", new String[]{ search });
+        if (res != null)
+            res.moveToFirst();
+        BeaconFoundModel beacon = new BeaconFoundModel();
+        beacon.setLineId(res.getInt(res.getColumnIndex("line_id")));
+        beacon.setLineName(res.getString(res.getColumnIndex("line_name")));
+        beacon.setLineStart(res.getInt(res.getColumnIndex("line_start")));
+        beacon.setLineEnd(res.getInt(res.getColumnIndex("line_end")));
+        beacon.setLineStartName(res.getString(res.getColumnIndex("line_start_name")));
+        beacon.setLineEndName(res.getString(res.getColumnIndex("line_end_name")));
+        res.close();
+        return beacon;
     }
 
 }

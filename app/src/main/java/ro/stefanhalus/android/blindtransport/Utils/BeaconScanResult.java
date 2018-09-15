@@ -11,10 +11,10 @@ import ro.stefanhalus.android.blindtransport.Models.BeaconFoundModel;
 import ro.stefanhalus.android.blindtransport.Models.LinesModel;
 
 public class BeaconScanResult {
-    public static ArrayList<ArrayList<IBeaconDevice>> found;
+    public static HashMap found;
 
     BeaconScanResult() {
-        found = new ArrayList<>();
+//        found = new HashMap<>();
     }
 
     public void getArrivedLines() {
@@ -23,13 +23,12 @@ public class BeaconScanResult {
 //        }
     }
 
-    public List<Map<String, List<BeaconFoundModel>>> beaconList() {
-        List<Map<String, List<BeaconFoundModel>>> list = new ArrayList<>();
+    public HashMap<String, List<BeaconFoundModel>> beaconList() {
+        HashMap<String, List<BeaconFoundModel>> list = new HashMap<>();
         Map<String, List<BeaconFoundModel>> map1 = new HashMap<>();
         List<BeaconFoundModel> arraylist1 = new ArrayList<>();
 //        arraylist1.add();
         map1.put("key1", arraylist1);
-        list.add(map1);
         return list;
     }
 }

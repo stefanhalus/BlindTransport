@@ -5,6 +5,13 @@
     <string name="activity_waiting_text">Waiting %1$s</string>
     <string name="activity_waiting_button_notify">Demo notification</string>
     <string name="app_name">Blind Transport</string>
+
+    <string name="bus_position_front">Bus in front of you</string>
+    <string name="bus_position_left">Bus on your left side</string>
+    <string name="bus_position_right">Bus on your right side</string>
+    <string name="bus_distance_back">Back %1$s m</string>
+    <string name="bus_distance_front">Front %1$s m</string>
+
     <string name="dialog_about_title">About application Transport</string>
     <string name="dialog_about_app_version"><b>1.0</b></string>
     <string name="dialog_about_app_developer"><b>Cristian Ștefan Halus</b></string>
@@ -21,19 +28,25 @@
     <string name="dialog_about_owner_email"><b>gabi.nagy@babilontravel.net</b></string>
     <string name="dialog_about_owner_www"><b>www.babilontravel.net</b></string>
     <string name="dialog_about_owner_address"><b>Piața Cipariu, nr. 15, <br />bl. IIIA, sc. 2, ap. 64, <br />400191, Cluj-Napoca, <br />Cluj, Romania</b></string>
+
     <string name="menu_about_application">About application</string>
+
     <string name="list_checkbox_checked">Line %1$s added!</string>
     <string name="list_checkbox_unchecked">Line %1$s removed!</string>
     <string name="list_icon_description">Station</string>
+
     <string name="select_station">Filter stations</string>
+
     <string name="toast_permissions_granted">Thank you for granting this permission!</string>
     <string name="toast_permissions_request_message_title">Permission needed</string>
     <string name="toast_permissions_request_message_content">We need Fine Location permission as it is required by iBeacon library functionality.
 If you reject this permission, the application would not detect iBeacons and bus numbers.</string>
     <string name="toast_permissions_refused">Unfortunately, you rejected this permission. Application can not work further more.</string>
+
     <string name="ubil_button_ok">OK</string>
     <string name="ubil_button_cancel">Cancel</string>
     <string name="ubil_button_yes">Yes</string>
     <string name="ubil_button_no">No</string>
     <string name="ubil_button_close">Close</string>
+
 </resources>
